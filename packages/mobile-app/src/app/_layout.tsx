@@ -66,9 +66,11 @@ function RootLayoutInner() {
         <Stack.Screen name="provider/[id]" options={{ title: 'Provider Profile' }} />
         <Stack.Screen name="booking/create" options={{ title: 'Book Service' }} />
         <Stack.Screen name="booking/[id]" options={{ title: 'Booking Details' }} />
+        <Stack.Screen name="booking/payment" options={{ title: 'Payment' }} />
         <Stack.Screen name="booking/success" options={{ headerShown: false }} />
         <Stack.Screen name="review/[bookingId]" options={{ title: 'Write Review' }} />
         <Stack.Screen name="search" options={{ title: 'Search Services' }} />
+        <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
         <Stack.Screen name="edit-profile" options={{ title: 'Edit Profile' }} />
       </Stack>
     </>

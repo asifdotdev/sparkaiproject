@@ -4,6 +4,7 @@ import { ApiError } from '../utils/apiError';
 import { BOOKING_STATUS_TRANSITIONS } from '@sparkai/shared';
 import type { BookingStatus } from '@sparkai/shared';
 import { parsePagination, paginateQuery, buildPaginationMeta } from '../utils/pagination';
+import { NotificationService } from './notification.service';
 
 export class BookingService {
   static async create(userId: number, data: {
@@ -44,6 +45,9 @@ export class BookingService {
       status: 'pending',
       paymentStatus: 'pending',
     });
+
+    // Send push notification
+    NotificationService.onBookingCreated(booking).catch(console.error);
 
     return booking;
   }
@@ -157,6 +161,28 @@ export class BookingService {
     if (newStatus === 'completed' && booking.providerId) {
       await ProviderProfile.increment('totalJobs', { where: { id: booking.providerId } });
     }
+
+    // Send push notifications based on status change
+    const notifyAsync = async () => {
+      switch (newStatus) {
+        case 'accepted':
+          await NotificationService.onBookingAccepted(booking);
+          break;
+        case 'rejected':
+          await NotificationService.onBookingRejected(booking);
+          break;
+        case 'in_progress':
+          await NotificationService.onBookingStarted(booking);
+          break;
+        case 'completed':
+          await NotificationService.onBookingCompleted(booking);
+          break;
+        case 'cancelled':
+          await NotificationService.onBookingCancelled(booking, extras?.cancelledBy || role);
+          break;
+      }
+    };
+    notifyAsync().catch(console.error);
 
     return booking;
   }

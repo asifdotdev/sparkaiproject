@@ -1,6 +1,7 @@
 import { Review, Booking, ProviderProfile, User } from '../db/models';
 import { ApiError } from '../utils/apiError';
 import { sequelize } from '../config/database';
+import { NotificationService } from './notification.service';
 
 export class ReviewService {
   static async create(userId: number, data: { bookingId: number; rating: number; comment?: string }) {
@@ -46,6 +47,9 @@ export class ReviewService {
       { rating: Math.round(avgRating * 100) / 100 },
       { where: { id: booking.providerId } },
     );
+
+    // Notify provider about the review
+    NotificationService.onReviewReceived(booking.providerId, data.rating, booking.id).catch(console.error);
 
     return review;
   }

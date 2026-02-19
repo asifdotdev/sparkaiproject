@@ -182,3 +182,22 @@ CREATE TABLE payments (
     INDEX idx_payments_booking (booking_id),
     INDEX idx_payments_status (status)
 );
+
+-- ============================================
+-- NOTIFICATIONS TABLE
+-- ============================================
+CREATE TABLE notifications (
+    id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id         INT UNSIGNED NOT NULL,
+    title           VARCHAR(200) NOT NULL,
+    body            TEXT NOT NULL,
+    type            ENUM('booking_created', 'booking_accepted', 'booking_rejected', 'booking_started',
+                         'booking_completed', 'booking_cancelled', 'payment_received', 'review_received',
+                         'general') NOT NULL DEFAULT 'general',
+    reference_id    INT UNSIGNED DEFAULT NULL,
+    is_read         BOOLEAN DEFAULT FALSE,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_notifications_user (user_id),
+    INDEX idx_notifications_read (is_read)
+);

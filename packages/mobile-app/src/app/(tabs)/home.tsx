@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { categoriesApi } from '../../services/categories.api';
 import { servicesApi } from '../../services/services.api';
 import { providersApi } from '../../services/providers.api';
+import { notificationsApi } from '../../services/notifications.api';
 import { useAuthStore } from '../../store/authStore';
 import { Card } from '../../components/ui/Card';
 import { Avatar } from '../../components/ui/Avatar';
@@ -44,6 +45,13 @@ export default function HomeScreen() {
   const services = servicesQuery.data?.data || [];
   const providers = providersQuery.data?.data || [];
 
+  const unreadQuery = useQuery({
+    queryKey: ['notifications-unread'],
+    queryFn: () => notificationsApi.getUnreadCount(),
+    enabled: !!user,
+  });
+  const unreadCount = unreadQuery.data?.data?.count || 0;
+
   const isRefreshing = categoriesQuery.isRefetching;
 
   const onRefresh = () => {
@@ -64,9 +72,19 @@ export default function HomeScreen() {
             <Text style={styles.greeting}>Hello, {user?.name?.split(' ')[0] || 'there'} 👋</Text>
             <Text style={styles.tagline}>What service do you need?</Text>
           </View>
-          <TouchableOpacity onPress={() => router.push('/search')} style={styles.searchIcon}>
-            <Ionicons name="search" size={24} color={colors.gray[600]} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            <TouchableOpacity onPress={() => router.push('/notifications')} style={styles.searchIcon}>
+              <Ionicons name="notifications-outline" size={24} color={colors.gray[600]} />
+              {unreadCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/search')} style={styles.searchIcon}>
+              <Ionicons name="search" size={24} color={colors.gray[600]} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Search Bar */}
@@ -337,5 +355,22 @@ const styles = StyleSheet.create({
   },
   verifiedBadge: {
     marginLeft: spacing.sm,
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: colors.error,
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: colors.white,
+    fontSize: 10,
+    fontWeight: '700',
   },
 });

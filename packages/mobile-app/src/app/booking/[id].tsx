@@ -145,9 +145,32 @@ export default function BookingDetailScreen() {
           </View>
         )}
 
+        {/* Payment Info */}
+        {booking.paymentStatus && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Payment</Text>
+            <View style={styles.detailRow}>
+              <Ionicons name="card-outline" size={16} color={colors.gray[400]} />
+              <Text style={styles.detailText}>
+                Status: <Text style={{ fontWeight: '600', color: booking.paymentStatus === 'paid' ? colors.success : colors.warning }}>
+                  {booking.paymentStatus.toUpperCase()}
+                </Text>
+              </Text>
+            </View>
+          </View>
+        )}
+
         {/* Actions */}
         <View style={styles.actions}>
           {/* User actions */}
+          {!isProvider && booking.paymentStatus !== 'paid' && ['pending', 'accepted', 'in_progress', 'completed'].includes(booking.status) && (
+            <Button
+              title={`Pay $${booking.totalPrice}`}
+              onPress={() => router.push(`/booking/payment?bookingId=${booking.id}&amount=${booking.totalPrice}`)}
+              size="lg"
+              style={{ marginBottom: spacing.md }}
+            />
+          )}
           {!isProvider && booking.status === 'pending' && (
             <Button title="Cancel Booking" onPress={handleCancel} variant="outline" size="lg" loading={cancelMutation.isPending} />
           )}

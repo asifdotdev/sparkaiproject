@@ -7,6 +7,7 @@ import ProviderService from './ProviderService.model';
 import Booking from './Booking.model';
 import Review from './Review.model';
 import Payment from './Payment.model';
+import Notification from './Notification.model';
 
 // Role <-> User
 Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
@@ -62,4 +63,8 @@ Review.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 ProviderProfile.hasMany(Review, { foreignKey: 'provider_id', as: 'reviews' });
 Review.belongsTo(ProviderProfile, { foreignKey: 'provider_id', as: 'provider' });
 
-export { Role, User, Category, Service, ProviderProfile, ProviderService, Booking, Review, Payment };
+// User <-> Notification
+User.hasMany(Notification, { foreignKey: 'user_id', as: 'notifications' });
+Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+export { Role, User, Category, Service, ProviderProfile, ProviderService, Booking, Review, Payment, Notification };

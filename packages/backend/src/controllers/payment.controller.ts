@@ -5,8 +5,26 @@ import { ApiResponse } from '../utils/apiResponse';
 export class PaymentController {
   static async initiate(req: Request, res: Response, next: NextFunction) {
     try {
-      const payment = await PaymentService.initiate(req.user!.userId, req.body);
-      ApiResponse.created(res, payment, 'Payment processed');
+      const result = await PaymentService.initiate(req.user!.userId, req.body);
+      ApiResponse.created(res, result, 'Payment initiated');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async confirm(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await PaymentService.confirm(req.user!.userId, req.body);
+      ApiResponse.success(res, result, result.message);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async refund(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await PaymentService.refund(parseInt(req.params.id));
+      ApiResponse.success(res, result, result.message);
     } catch (error) {
       next(error);
     }

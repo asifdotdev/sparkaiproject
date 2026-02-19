@@ -148,7 +148,7 @@ After running the seeder, these accounts are available:
 
 ## Database Schema
 
-9 tables with full relational integrity:
+10 tables with full relational integrity:
 
 ```
 roles ─────────┐
@@ -173,6 +173,7 @@ users ─────────┤──→ provider_profiles ──→ provid
 | `bookings` | Service bookings with status lifecycle |
 | `reviews` | Customer reviews (1-5 stars) for completed bookings |
 | `payments` | Payment transactions linked to bookings |
+| `notifications` | Push notification log (mock) per user |
 
 The raw SQL schema is available at `database/schema.sql`.
 
@@ -248,12 +249,22 @@ The raw SQL schema is available at `database/schema.sql`.
 | GET | `/reviews/booking/:bookingId` | Bearer | Get review for a booking |
 | GET | `/reviews/provider/:providerId` | - | Get all reviews for a provider |
 
-### Payments
+### Payments (Mock Gateway)
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/payments/initiate` | User | Initiate payment for booking |
+| POST | `/payments/initiate` | User | Step 1: Initiate payment (select method) |
+| POST | `/payments/confirm` | User | Step 2: Confirm payment (mock gateway callback) |
+| POST | `/payments/:id/refund` | Admin | Refund a completed payment |
 | GET | `/payments/booking/:bookingId` | Bearer | Get payment for a booking |
 | GET | `/payments/:id` | Bearer | Get payment by ID |
+
+### Notifications (Mock Push)
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/notifications` | Bearer | List user notifications (paginated) |
+| GET | `/notifications/unread-count` | Bearer | Get unread notification count |
+| PUT | `/notifications/:id/read` | Bearer | Mark notification as read |
+| PUT | `/notifications/read-all` | Bearer | Mark all notifications as read |
 
 ### Admin
 | Method | Endpoint | Auth | Description |
@@ -277,7 +288,10 @@ The raw SQL schema is available at `database/schema.sql`.
 - Search services by name
 - View provider profiles, ratings, and reviews
 - Book services with date/time scheduling and address
+- **Mock payment flow**: select payment method (Card, UPI, Wallet, Net Banking, Cash), processing animation, success/failure result with receipt
 - Track booking status in real-time
+- **Push notifications**: real-time alerts for booking accepted, started, completed, cancelled
+- Notification center with unread badge count
 - Rate and review completed services
 - Manage profile and booking history
 
@@ -285,6 +299,7 @@ The raw SQL schema is available at `database/schema.sql`.
 - Provider dashboard with job stats and earnings
 - Accept or reject incoming booking requests
 - Start and complete service jobs
+- **Push notifications**: alerts for new bookings, payments received, reviews
 - Manage offered services and availability
 - View ratings and customer reviews
 
@@ -296,7 +311,7 @@ The raw SQL schema is available at `database/schema.sql`.
 - Categories & services CRUD
 - Booking monitoring with status filters
 - Review moderation
-- Payment transaction history
+- Payment transaction history with refund capability
 
 ## Architecture Highlights
 
@@ -309,6 +324,14 @@ The raw SQL schema is available at `database/schema.sql`.
 - **Rating System**: Provider ratings auto-calculated from review averages
 - **Pagination**: Consistent offset-based pagination across all list endpoints
 - **Error Handling**: Centralized API error classes with proper HTTP status codes
+- **Mock Payment Gateway**: Two-step payment flow (initiate → confirm) with simulated processing
+- **Mock Push Notifications**: Event-driven notifications persisted in DB, logged to console (ready for FCM/APNs integration)
+
+## Bonus Features
+
+- **Payment Flow (Mocked)**: Full payment UX with method selection (Card, UPI, Wallet, Net Banking, Cash), processing animation, 95% mock success rate, receipt display, refund capability
+- **Push Notifications (Mocked)**: Notifications triggered on booking status changes, payments, and reviews. Persisted in DB with unread counts. Console-logged (production-ready for Expo Push / FCM)
+- **Deployment Instructions**: See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment guides covering AWS, Railway, Vercel, Docker, and mobile app store submission
 
 ## Scripts Reference
 

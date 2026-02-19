@@ -6,6 +6,8 @@ import { authorize } from '../middleware/role.middleware';
 const router = Router();
 
 router.post('/initiate', authenticate, authorize('user'), PaymentController.initiate);
+router.post('/confirm', authenticate, authorize('user'), PaymentController.confirm);
+router.post('/:id/refund', authenticate, authorize('admin'), PaymentController.refund);
 router.get('/booking/:bookingId', authenticate, PaymentController.getByBooking);
 router.get('/:id', authenticate, PaymentController.getById);
 
